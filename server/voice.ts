@@ -100,11 +100,21 @@ export function setupVoiceWebSocket(httpServer: Server) {
           return;
         }
         
+        // When speech starts, log it
+        if (message.type === "input_audio_buffer.speech_started") {
+          log("Speech started - waiting for speech to stop", "voice");
+        }
+        
         // When speech stops, commit buffer and request response
         if (message.type === "input_audio_buffer.speech_stopped") {
           log("Speech stopped, committing buffer and requesting response", "voice");
           xaiWs!.send(JSON.stringify({ type: "input_audio_buffer.commit" }));
           xaiWs!.send(JSON.stringify({ type: "response.create" }));
+        }
+        
+        // Log any response events
+        if (message.type?.startsWith("response.")) {
+          log(`Response event: ${message.type}`, "voice");
         }
         
         if (clientWs.readyState === WebSocket.OPEN) {
