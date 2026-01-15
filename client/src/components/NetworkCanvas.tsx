@@ -163,14 +163,29 @@ export function NetworkCanvas({ data, onNodeClick, filter }: NetworkCanvasProps)
             // Zoom to node
             graphRef.current?.centerAt(node.x, node.y, 1000);
             graphRef.current?.zoom(5, 2000);
+            
+            // Stop simulation to prevent jiggle
+            // We set alpha target to 0 to tell D3 we're done
+            graphRef.current?.d3Force('charge')?.strength(0);
+            graphRef.current?.d3Force('link')?.strength(0);
+            graphRef.current?.d3Force('cluster')?.strength(0);
+            
+            // Or easier: pause the engine
+            // React-force-graph doesn't expose a clean 'stop' method on the ref directly in types,
+            // but setting cooldownTicks to 0 prevents re-heating.
+            // However, centerAt might trigger a re-render.
+            
             onNodeClick(node);
         }}
         nodeCanvasObject={paintNode}
         onRenderFramePre={drawClusterLabels}
-        cooldownTicks={200} 
-        d3AlphaDecay={0.01}
-        d3VelocityDecay={0.4}
+        cooldownTicks={100} 
+        d3AlphaDecay={0.02} // Slightly faster decay to freeze sooner
+        d3VelocityDecay={0.6} // High friction to stop movement
         warmupTicks={100}
+        onEngineStop={() => {
+           // Engine stopped
+        }}
       />
     </div>
   );
