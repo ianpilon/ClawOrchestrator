@@ -160,22 +160,15 @@ export function NetworkCanvas({ data, onNodeClick, filter }: NetworkCanvasProps)
         linkColor={() => '#1e293b'} // slate-800 (Very subtle links)
         linkWidth={1}
         onNodeClick={(node: any) => {
+            // NUCLEAR OPTION: Lock all nodes in place to absolutely prevent jiggle
+            data.nodes.forEach((n: any) => {
+               n.fx = n.x;
+               n.fy = n.y;
+            });
+            
             // Zoom to node
             graphRef.current?.centerAt(node.x, node.y, 1000);
             graphRef.current?.zoom(5, 2000);
-            
-            // Stop simulation to prevent jiggle
-            // We set alpha target to 0 to tell D3 we're done
-            graphRef.current?.d3Force('charge')?.strength(0);
-            graphRef.current?.d3Force('link')?.strength(0);
-            // Custom force is a function, not a D3 force object, so it doesn't have .strength()
-            // We disable it by removing it
-            graphRef.current?.d3Force('cluster', null);
-            
-            // Or easier: pause the engine
-            // React-force-graph doesn't expose a clean 'stop' method on the ref directly in types,
-            // but setting cooldownTicks to 0 prevents re-heating.
-            // However, centerAt might trigger a re-render.
             
             onNodeClick(node);
         }}
