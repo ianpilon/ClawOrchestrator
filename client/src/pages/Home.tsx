@@ -36,7 +36,12 @@ export default function Home() {
   const handleSearchSelect = (node: NodeData) => {
     setSearchQuery('');
     setFocusNodeId(node.id);
-    // Reset focus after a moment so it can be triggered again for same node
+    setTimeout(() => setFocusNodeId(null), 100);
+  };
+
+  const handleVoicePersonFound = (node: NodeData) => {
+    setSelectedNode(node);
+    setFocusNodeId(node.id);
     setTimeout(() => setFocusNodeId(null), 100);
   };
 
@@ -178,7 +183,10 @@ export default function Home() {
           </div>
         </div>
         
-        <VoiceAI />
+        <VoiceAI 
+          peopleData={graphData.nodes} 
+          onPersonFound={handleVoicePersonFound}
+        />
       </div>
 
       {/* Contextual Card Sidebar */}
