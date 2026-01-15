@@ -5,7 +5,7 @@ import { generateGraphData, NodeData } from '@/lib/mockData';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AnimatePresence } from 'framer-motion';
-import { Crosshair, ShieldAlert, Target, Activity, Share2, Terminal } from 'lucide-react';
+import { Crosshair, ShieldAlert, Target, Share2, Terminal } from 'lucide-react';
 
 // Generate data once (total ~27,500 nodes across all organizations)
 const graphData = generateGraphData();
@@ -72,7 +72,7 @@ export default function Home() {
             <Terminal className="w-3 h-3 mr-2" /> Logs
           </Button>
           <Button className="bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 hover:border-primary/50 font-mono uppercase rounded-none h-10 px-6 backdrop-blur-sm transition-all">
-             <Activity className="w-3 h-3 mr-2" /> Connect
+             <img src="/x-logo.png" alt="X" className="w-3 h-3 mr-2" /> Connect
           </Button>
         </div>
       </div>
