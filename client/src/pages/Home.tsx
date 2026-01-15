@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { NetworkCanvas } from '@/components/NetworkCanvas';
 import { ProfileCard } from '@/components/ProfileCard';
+import { TwitterDropdown } from '@/components/TwitterDropdown';
 import { generateGraphData, NodeData } from '@/lib/mockData';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +15,7 @@ export default function Home() {
   const [selectedNode, setSelectedNode] = useState<NodeData | null>(null);
   const [filter, setFilter] = useState<'all' | 'exceptional'>('all');
   const [zoomLevel, setZoomLevel] = useState<number>(1);
+  const [isTwitterOpen, setIsTwitterOpen] = useState(false);
 
   // Stats
   const totalNodes = graphData.nodes.length;
@@ -67,13 +69,17 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="pointer-events-auto flex gap-3">
+        <div className="pointer-events-auto flex gap-3 relative">
           <Button variant="outline" className="hud-panel border-white/5 text-xs font-mono uppercase hover:bg-white/5 text-muted-foreground hover:text-foreground rounded-none h-10 px-4">
             <Terminal className="w-3 h-3 mr-2" /> Logs
           </Button>
-          <Button className="bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 hover:border-primary/50 font-mono uppercase rounded-none h-10 px-6 backdrop-blur-sm transition-all">
+          <Button 
+            onClick={() => setIsTwitterOpen(!isTwitterOpen)}
+            className={`bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 hover:border-primary/50 font-mono uppercase rounded-none h-10 px-6 backdrop-blur-sm transition-all ${isTwitterOpen ? 'bg-primary/20 border-primary/50' : ''}`}
+          >
              <img src="/x-logo.png" alt="X" className="w-3 h-3 mr-2" /> Connect
           </Button>
+          <TwitterDropdown isOpen={isTwitterOpen} onClose={() => setIsTwitterOpen(false)} />
         </div>
       </div>
 
