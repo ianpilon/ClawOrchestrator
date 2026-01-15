@@ -38,22 +38,61 @@ export function NetworkCanvas({ data, onNodeClick, filter }: NetworkCanvasProps)
     if (graphRef.current) {
       // 1. Charge: Repulsion. Negative value pushes nodes apart.
       // Stronger repulsion (-80) prevents the tight ball.
-      graphRef.current.d3Force('charge').strength(-120).distanceMax(500);
+      graphRef.current.d3Force('charge').strength(-200).distanceMax(600);
 
       // 2. Link: Connection stiffness/length.
       // Longer distance allows clusters to separate.
-      graphRef.current.d3Force('link').distance(45);
+      graphRef.current.d3Force('link').distance(70);
 
       // 3. Collide: Prevent overlap
-      graphRef.current.d3Force('collide', d3.forceCollide(10));
+      graphRef.current.d3Force('collide', d3.forceCollide(12));
 
       // 4. Center: Keep it visible in viewport, but don't crush it
-      graphRef.current.d3Force('center').strength(0.05);
+      graphRef.current.d3Force('center').strength(0.01);
       
+      // 5. Custom Cluster Force: Pull nodes towards distinct focal points based on their group
+      // This forces the "geographic" separation
+      const clusterForce = (alpha: number) => {
+        data.nodes.forEach((node: any) => {
+          // Define explicit centers for clusters (8 clusters total in mockData)
+          // We distribute them in a ring or varied positions
+          const clusterId = node.clusterGroup || 0;
+          
+          // SF (0) - Center Left (Large)
+          // NY (1) - Top Right
+          // London (2) - Far Right
+          // Waterloo (3) - Top Left
+          // Remote (4) - Bottom Center (Scattered)
+          // Tokyo (5) - Bottom Right
+          // Berlin (6) - Top Center
+          // Singapore (7) - Bottom Left
+          
+          const centers: Record<number, {x: number, y: number}> = {
+            0: { x: -300, y: 0 },    // SF
+            1: { x: 300, y: -200 },  // NY
+            2: { x: 500, y: -50 },   // London
+            3: { x: -200, y: -300 }, // Waterloo
+            4: { x: 0, y: 400 },     // Remote
+            5: { x: 400, y: 300 },   // Tokyo
+            6: { x: 100, y: -400 },  // Berlin
+            7: { x: -400, y: 200 },  // Singapore
+          };
+          
+          const target = centers[clusterId] || { x: 0, y: 0 };
+          
+          // Move towards target
+          node.vx += (target.x - node.x) * 1 * alpha;
+          node.vy += (target.y - node.y) * 1 * alpha;
+        });
+      };
+      
+      // Register custom force
+      graphRef.current.d3Force('cluster', clusterForce);
+
       // Re-heat simulation
       graphRef.current.d3ReheatSimulation();
     }
-  }, [graphRef.current]);
+  }, [graphRef.current, data]);
 
   const paintNode = useCallback((node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
     const isExceptional = node.exceptional;

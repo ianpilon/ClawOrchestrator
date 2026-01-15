@@ -124,7 +124,7 @@ export function generateGraphData(count: number = 1000) {
 
     for (let j = 0; j < numLinks; j++) {
       let targetIndex;
-      const stayInCluster = Math.random() > 0.15; // 85% chance to stay in cluster
+      const stayInCluster = Math.random() > 0.05; // 95% chance to stay in cluster (increased from 85%)
 
       if (stayInCluster) {
         // Find a random node in the same location
@@ -137,7 +137,7 @@ export function generateGraphData(count: number = 1000) {
         do {
            targetIndex = randomInt(0, count - 1);
            attempts++;
-        } while (nodes[targetIndex].location !== node.location && attempts < 10);
+        } while (nodes[targetIndex].location !== node.location && attempts < 20);
       } else {
         // Connect to anywhere (bridge between clusters)
         targetIndex = randomInt(0, count - 1);
