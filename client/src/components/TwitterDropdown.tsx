@@ -7,6 +7,12 @@ interface TwitterDropdownProps {
   onClose: () => void;
 }
 
+const currentUser = {
+  name: 'Umesh Khanna',
+  handle: '@forwarddeploy',
+  avatar: 'https://pbs.twimg.com/profile_images/1934350294642733056/qXErHn6w_400x400.jpg',
+};
+
 const mockTweets = [
   {
     id: 1,
@@ -60,15 +66,25 @@ export function TwitterDropdown({ isOpen, onClose }: TwitterDropdownProps) {
     <div className="absolute top-14 right-0 w-[420px] h-[600px] bg-black border border-gray-800 rounded-2xl shadow-2xl overflow-hidden z-50 flex flex-col">
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
         <div className="flex items-center gap-3">
-          <img src="/x-logo.png" alt="X" className="w-6 h-6" />
-          <span className="font-bold text-white">X</span>
+          <img 
+            src={currentUser.avatar} 
+            alt={currentUser.name}
+            className="w-8 h-8 rounded-full object-cover"
+          />
+          <div className="flex flex-col">
+            <span className="font-bold text-white text-sm leading-tight">{currentUser.name}</span>
+            <span className="text-gray-500 text-xs">{currentUser.handle}</span>
+          </div>
         </div>
-        <button 
-          onClick={onClose}
-          className="p-1 hover:bg-gray-800 rounded-full transition-colors"
-        >
-          <X className="w-5 h-5 text-gray-400" />
-        </button>
+        <div className="flex items-center gap-2">
+          <img src="/x-logo.png" alt="X" className="w-5 h-5" />
+          <button 
+            onClick={onClose}
+            className="p-1 hover:bg-gray-800 rounded-full transition-colors"
+          >
+            <X className="w-5 h-5 text-gray-400" />
+          </button>
+        </div>
       </div>
 
       <div className="flex border-b border-gray-800">
@@ -103,9 +119,11 @@ export function TwitterDropdown({ isOpen, onClose }: TwitterDropdownProps) {
         <div className="flex-1 overflow-y-auto">
           <div className="px-4 py-3 border-b border-gray-800">
             <div className="flex gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
-                I
-              </div>
+              <img 
+                src={currentUser.avatar} 
+                alt={currentUser.name}
+                className="w-10 h-10 rounded-full object-cover"
+              />
               <div className="flex-1">
                 <textarea
                   placeholder="What's happening?"
@@ -246,8 +264,12 @@ export function TwitterDropdown({ isOpen, onClose }: TwitterDropdownProps) {
         <button className="p-3 hover:bg-gray-800 rounded-full transition-colors text-gray-500">
           <Mail className="w-5 h-5" />
         </button>
-        <button className="p-3 hover:bg-gray-800 rounded-full transition-colors text-gray-500">
-          <User className="w-5 h-5" />
+        <button className="p-2 hover:bg-gray-800 rounded-full transition-colors">
+          <img 
+            src={currentUser.avatar} 
+            alt={currentUser.name}
+            className="w-6 h-6 rounded-full object-cover"
+          />
         </button>
       </div>
     </div>
