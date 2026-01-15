@@ -169,8 +169,8 @@ export function NetworkCanvas({ data, onNodeClick, filter, onZoomChange }: Netwo
         nodeLabel="name"
         backgroundColor="#00000000" // Transparent
         nodeRelSize={4}
-        linkColor={() => 'rgba(30, 41, 59, 0.3)'}
-        linkWidth={0.5}
+        linkColor={() => 'rgba(100, 116, 139, 0.6)'}
+        linkWidth={0.8}
         minZoom={0.5}
         maxZoom={2.4}
         onNodeClick={(node: any) => {
