@@ -1,5 +1,5 @@
 import ForceGraph2D from 'react-force-graph-2d';
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import * as d3 from 'd3';
 import avatarMale from '@assets/generated_images/cyberpunk_tech_professional_avatar_male.png';
 import avatarFemale from '@assets/generated_images/cyberpunk_tech_professional_avatar_female.png';
@@ -23,6 +23,23 @@ export function NetworkCanvas({ data, onNodeClick, filter, onZoomChange }: Netwo
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Filter links when in HVT mode - only show connections between exceptional nodes
+  const filteredData = useMemo(() => {
+    if (filter !== 'exceptional') return data;
+    
+    const exceptionalIds = new Set(
+      data.nodes.filter((n: any) => n.exceptional).map((n: any) => n.id)
+    );
+    
+    const filteredLinks = data.links.filter((link: any) => {
+      const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+      const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+      return exceptionalIds.has(sourceId) && exceptionalIds.has(targetId);
+    });
+    
+    return { nodes: data.nodes, links: filteredLinks };
+  }, [data, filter]);
 
   // Preload images
   const images = useRef<Record<string, HTMLImageElement>>({});
@@ -165,7 +182,7 @@ export function NetworkCanvas({ data, onNodeClick, filter, onZoomChange }: Netwo
         ref={graphRef}
         width={dimensions.w}
         height={dimensions.h}
-        graphData={data}
+        graphData={filteredData}
         nodeLabel="name"
         backgroundColor="#00000000" // Transparent
         nodeRelSize={4}
