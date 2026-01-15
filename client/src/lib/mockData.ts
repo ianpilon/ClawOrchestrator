@@ -316,5 +316,15 @@ export function generateGraphData() {
     }
   });
 
+  // Add specific connections between named individuals
+  const ianPilon = nodes.find(n => n.name === 'Ian Pilon');
+  const umeshKhanna = nodes.find(n => n.name === 'Umesh Khanna');
+  if (ianPilon && umeshKhanna) {
+    links.push({
+      source: ianPilon.id,
+      target: umeshKhanna.id,
+    });
+  }
+
   return { nodes, links };
 }
