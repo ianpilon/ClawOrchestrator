@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AnimatePresence } from 'framer-motion';
 import { Crosshair, ShieldAlert, Target, Share2, Search } from 'lucide-react';
+import { VoiceAI } from '@/components/VoiceAI';
 
 // Generate data once (total ~27,500 nodes across all organizations)
 const graphData = generateGraphData();
@@ -55,19 +56,23 @@ export default function Home() {
       {/* Header / Nav Overlay */}
       <div className="absolute top-0 left-0 right-0 p-6 pointer-events-none flex justify-between items-start z-10 h-32">
         <div className="pointer-events-auto flex items-start gap-6">
-          <div className="hud-panel p-4 w-72 hud-corner-tl">
-             <div className="flex items-center gap-3 mb-2">
-                <div className="status-indicator" />
-                <span className="hud-text text-primary font-bold">Global Situational Awareness System</span>
-             </div>
-             <div className="h-px bg-white/5 w-full mb-3" />
-             <h1 className="text-2xl font-bold uppercase tracking-wider text-foreground flex items-center gap-3">
-               <img src="/xai-logo.png" alt="xAI" className="h-6 w-auto" />
-               Talent Grid <span className="text-white/20">V.01</span>
-             </h1>
-             <p className="hud-text mt-1">
-                Sector: <span className="text-secondary">Global</span> // Status: <span className="text-primary">Online</span>
-             </p>
+          <div className="flex flex-col gap-3">
+            <div className="hud-panel p-4 w-72 hud-corner-tl">
+               <div className="flex items-center gap-3 mb-2">
+                  <div className="status-indicator" />
+                  <span className="hud-text text-primary font-bold">Global Situational Awareness System</span>
+               </div>
+               <div className="h-px bg-white/5 w-full mb-3" />
+               <h1 className="text-2xl font-bold uppercase tracking-wider text-foreground flex items-center gap-3">
+                 <img src="/xai-logo.png" alt="xAI" className="h-6 w-auto" />
+                 Talent Grid <span className="text-white/20">V.01</span>
+               </h1>
+               <p className="hud-text mt-1">
+                  Sector: <span className="text-secondary">Global</span> // Status: <span className="text-primary">Online</span>
+               </p>
+            </div>
+            
+            <VoiceAI />
           </div>
           
           <div className="hud-panel p-3 flex gap-6 items-center">
