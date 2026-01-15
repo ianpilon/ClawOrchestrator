@@ -88,9 +88,17 @@ export function setupVoiceWebSocket(httpServer: Server) {
         const message = JSON.parse(data.toString());
         log(`xAI event: ${message.type}`, "voice");
         
+        // Respond to ping to keep connection alive
+        if (message.type === "ping") {
+          xaiWs!.send(JSON.stringify({ type: "pong" }));
+          return;
+        }
+        
+        // When speech stops, commit buffer and request response
         if (message.type === "input_audio_buffer.speech_stopped") {
-          log("Speech stopped, committing buffer", "voice");
+          log("Speech stopped, committing buffer and requesting response", "voice");
           xaiWs!.send(JSON.stringify({ type: "input_audio_buffer.commit" }));
+          xaiWs!.send(JSON.stringify({ type: "response.create" }));
         }
         
         if (clientWs.readyState === WebSocket.OPEN) {
