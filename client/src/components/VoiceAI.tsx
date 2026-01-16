@@ -38,11 +38,12 @@ export function VoiceAI({ peopleData, onPersonFound }: VoiceAIProps) {
       /(?:tell me about|who is|look up)\s+([a-z\s'-]+?)(?:'s|\s*$|[.,])/,
     ];
     
-    // AI response patterns - explicit triggers for "Displaying/Showing [name]"
+    // AI response patterns - triggers for profile display
     const aiPatterns = [
-      /(?:displaying|showing)\s+([a-z\s'-]+?)(?:\s*$|[.,!])/,
-      /(?:found|here's|here is)\s+([a-z\s'-]+?)(?:'s\s+profile|\s+profile|[.,]|\s*$)/,
+      /(?:displaying|showing|opening)\s+([a-z\s'-]+?)(?:'s\s+profile|\s+profile|\s+now|\s*$|[.,!])/,
+      /(?:found|here's|here is|pulling up|loading)\s+([a-z\s'-]+?)(?:'s\s+profile|\s+profile|[.,]|\s*$)/,
       /profile\s+(?:for|of)\s+([a-z\s'-]+?)(?:[.,]|\s*$)/,
+      /(?:switching to|navigating to|let me show you)\s+([a-z\s'-]+?)(?:'s|\s+profile|\s*$|[.,])/,
     ];
 
     const allPatterns = [...userPatterns, ...aiPatterns];
