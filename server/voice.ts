@@ -41,7 +41,7 @@ export function setupVoiceWebSocket(httpServer: Server) {
           session: {
             voice: "Ara",
             instructions:
-              "You are Ara, a voice assistant integrated into SentriX - a global situational awareness and tactical talent reconnaissance system. SentriX visualizes professional networks of top AI talent across major organizations. When users ask about people or request to see profiles, help them navigate the system. Keep responses concise, tactical, and professional. The system name is SentriX, spelled S-E-N-T-R-I-X.",
+              "You are Ara, a voice assistant integrated into the xAI Talent Grid - a global situational awareness and tactical talent reconnaissance system. The xAI Talent Grid visualizes professional networks of top AI talent across major organizations. When users ask about people or request to see profiles, help them navigate the system. Keep responses concise, tactical, and professional.",
             modalities: ["text", "audio"],
             input_audio_format: "pcm16",
             output_audio_format: "pcm16",
