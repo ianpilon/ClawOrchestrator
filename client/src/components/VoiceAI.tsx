@@ -177,6 +177,7 @@ export function VoiceAI({ peopleData, onPersonFound }: VoiceAIProps) {
         const newText = data.delta || data.text || '';
         setTranscript(prev => {
           const updated = prev + newText;
+          console.log('[VoiceAI] Transcript update:', updated);
           checkForProfileRequest(updated);
           return updated;
         });
