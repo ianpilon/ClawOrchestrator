@@ -72,14 +72,7 @@ export function NetworkCanvas({ data, onNodeClick, filter, onZoomChange, selecte
   }, []);
 
   const clusterCenters: Record<number, {x: number, y: number, label: string}> = {
-    0: { x: -600, y: -300, label: 'Google (DeepMind)' },
-    1: { x: 400, y: -450, label: 'OpenAI' },
-    2: { x: -450, y: 450, label: 'Meta' },
-    3: { x: 600, y: 300, label: 'Microsoft' },
-    4: { x: 0, y: -550, label: 'Nvidia' },
-    5: { x: 0, y: 550, label: 'Anthropic' },
-    6: { x: -700, y: 100, label: 'xAI' },
-    7: { x: 700, y: -100, label: 'Amazon' },
+    0: { x: 0, y: 0, label: 'xAI' },
   };
 
   // Configure Forces for "Cluster" layout - optimized for large datasets
