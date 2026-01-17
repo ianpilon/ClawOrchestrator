@@ -51,8 +51,8 @@ const getAvatarUrl = (name: string) => {
 const firstNames = ['Alex', 'Jordan', 'Casey', 'Riley', 'Morgan', 'Taylor', 'Avery', 'Parker', 'Quinn', 'Skyler', 'Hiro', 'Suki', 'Zane', 'Lyra', 'Kael', 'Nova', 'Orion', 'Vega', 'Ryla', 'Jinx'];
 const lastNames = ['Chen', 'Smith', 'Kim', 'Patel', 'Rivera', 'Zhang', 'Kowalski', 'Dubois', 'Silva', 'Tanaka', 'Sterling', 'Vance', 'Mercer', 'Steel', 'Frost', 'Shadow', 'Light', 'Byte', 'Cipher', 'Voss'];
 
-const roles = ['Full Stack Developer', 'Data Scientist', 'AI Researcher', 'UX Designer', 'Product Manager', 'Cybersecurity Analyst', 'Blockchain Architect', 'Cloud Engineer'];
-const companies = ['xAI'];
+const roles = ['1A Student', '1B Student', '2A Student', '2B Student', '3A Student', '3B Student', '4A Student', '4B Student'];
+const companies = ['UWaterloo SE'];
 
 const skillsList = ['React', 'Python', 'TensorFlow', 'Rust', 'Go', 'Kubernetes', 'Design Systems', 'NLP', 'Computer Vision', 'Smart Contracts', 'GraphQL', 'AWS'];
 
@@ -93,7 +93,7 @@ const journeyNarratives = [
 
 // Define organizations with exact node counts
 const organizations = [
-  { name: 'xAI', count: 1200 },
+  { name: 'UWaterloo SE', count: 633 },
 ];
 
 // Keep locations for backward compatibility (maps to organization name)
@@ -153,13 +153,12 @@ export interface NodeData {
 
 // Featured profiles - real people with synthetic data (to be updated later)
 const featuredProfiles = [
-  { name: 'Ian Pilon', location: 'xAI', role: 'AI Researcher' },
-  { name: 'Elon Musk', location: 'xAI', role: 'CEO' },
-  { name: 'Amitav Krishna', location: 'xAI', role: 'Data Scientist' },
-  { name: 'William Suriaputra', location: 'xAI', role: 'Full Stack Developer' },
-  { name: 'Prabal Gupta', location: 'xAI', role: 'Blockchain Architect' },
-  { name: 'Eden Chan', location: 'xAI', role: 'UX Designer' },
-  { name: 'Umesh Khanna', location: 'xAI', role: 'Talent Engineering' },
+  { name: 'Ian Pilon', location: 'UWaterloo SE', role: '4A Student' },
+  { name: 'Amitav Krishna', location: 'UWaterloo SE', role: '3B Student' },
+  { name: 'William Suriaputra', location: 'UWaterloo SE', role: '4B Student' },
+  { name: 'Prabal Gupta', location: 'UWaterloo SE', role: '3A Student' },
+  { name: 'Eden Chan', location: 'UWaterloo SE', role: '2B Student' },
+  { name: 'Umesh Khanna', location: 'UWaterloo SE', role: '4A Student' },
 ];
 
 function createFeaturedNode(profile: { name: string; location: string; role: string }, index: number): NodeData {

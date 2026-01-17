@@ -72,7 +72,7 @@ export function NetworkCanvas({ data, onNodeClick, filter, onZoomChange, selecte
   }, []);
 
   const clusterCenters: Record<number, {x: number, y: number, label: string}> = {
-    0: { x: 0, y: 0, label: 'Akatos Talent' },
+    0: { x: 0, y: 0, label: 'UWaterloo Software Engineering' },
   };
 
   // Configure Forces for "Cluster" layout - optimized for large datasets
