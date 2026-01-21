@@ -290,7 +290,7 @@ export function CodePanel({ isOpen, onClose, nodes, onNodeSelect }: CodePanelPro
       animate={{ x: 0, opacity: 1 }}
       exit={{ x: '-100%', opacity: 0 }}
       transition={{ type: 'tween', ease: 'circOut', duration: 0.3 }}
-      className="fixed left-0 top-0 bottom-0 right-[120px] z-40 pointer-events-auto"
+      className="fixed inset-0 z-40 pointer-events-auto"
       data-testid="code-panel"
     >
       <div className="h-full bg-[#1a1c23]/95 backdrop-blur-xl border border-white/10 text-foreground shadow-2xl overflow-hidden flex flex-col relative">
