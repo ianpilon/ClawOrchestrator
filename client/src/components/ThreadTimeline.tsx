@@ -27,7 +27,7 @@ export function ThreadTimeline({
   onLoadAsContext,
 }: ThreadTimelineProps) {
   const [expandedThreads, setExpandedThreads] = useState<Set<string>>(new Set());
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
 
   const toggleThread = (threadId: string) => {
     const newExpanded = new Set(expandedThreads);

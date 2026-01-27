@@ -29,7 +29,7 @@ export function LoopStream({
   onRunAnotherLoop,
   selectedLoopId,
 }: LoopStreamProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [streamItems, setStreamItems] = useState<StreamItem[]>([]);
   const [terminalLoopId, setTerminalLoopId] = useState<string | null>(null);
 
