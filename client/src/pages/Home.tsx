@@ -164,7 +164,7 @@ export default function Home() {
         </div>
 
         <div className="pointer-events-auto flex gap-3 items-center">
-          <div className="flex gap-1">
+          <div className="hud-panel p-2 flex gap-1">
             {(['all', 'spinning', 'interventions'] as const).map((f) => (
               <Button
                 key={f}
