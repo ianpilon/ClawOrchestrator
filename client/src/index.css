@@ -141,3 +141,96 @@
 .status-indicator {
   @apply w-2 h-2 rounded-full bg-primary shadow-[0_0_10px_hsl(var(--primary))] animate-pulse;
 }
+
+/* Loom Paradigm - Loop Animations */
+@keyframes loop-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes loop-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+@keyframes wheel-turn {
+  0% { stroke-dashoffset: 251.2; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes clay-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes intervention-glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.6); }
+}
+
+.loop-spinning {
+  animation: loop-spin var(--spin-duration, 2s) linear infinite;
+}
+
+.loop-pulsing {
+  animation: loop-pulse 2s ease-in-out infinite;
+}
+
+.wheel-animating {
+  animation: wheel-turn var(--wheel-duration, 3s) linear infinite;
+}
+
+.clay-raw {
+  background: linear-gradient(90deg, transparent, rgba(107, 114, 128, 0.3), transparent);
+  background-size: 200% 100%;
+  animation: clay-shimmer 3s linear infinite;
+}
+
+.clay-polished {
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(34, 197, 94, 0.2));
+}
+
+.intervention-required {
+  animation: intervention-glow 1.5s ease-in-out infinite;
+}
+
+/* Autonomous indicator */
+.autonomous-badge {
+  @apply bg-emerald-500/10 border border-emerald-500/30 text-emerald-400;
+}
+
+/* Intervention indicator */
+.intervention-badge {
+  @apply bg-amber-500/10 border border-amber-500/30 text-amber-400;
+}
+
+/* Thread fork styling */
+.fork-point {
+  @apply relative before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-3 before:h-3 before:rounded-full before:bg-purple-500/30 before:border before:border-purple-500;
+}
+
+/* Speed bars */
+.speed-bar {
+  @apply h-1 rounded-full transition-all duration-300;
+}
+
+.speed-bar-fast { @apply bg-emerald-500; }
+.speed-bar-medium { @apply bg-amber-500; }
+.speed-bar-slow { @apply bg-red-500; }
+
+/* Refinement level textures */
+.refinement-raw {
+  background: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(107, 114, 128, 0.1) 2px, rgba(107, 114, 128, 0.1) 4px);
+}
+
+.refinement-shaped {
+  background: repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(245, 158, 11, 0.1) 3px, rgba(245, 158, 11, 0.1) 6px);
+}
+
+.refinement-refined {
+  background: repeating-radial-gradient(circle at 50% 50%, transparent, transparent 2px, rgba(139, 92, 246, 0.1) 2px, rgba(139, 92, 246, 0.1) 3px);
+}
+
+.refinement-polished {
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.05), rgba(34, 197, 94, 0.1));
+}

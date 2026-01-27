@@ -1,264 +1,246 @@
-import { useState, useMemo } from 'react';
-import { NetworkCanvas } from '@/components/NetworkCanvas';
-import { ProfileCard } from '@/components/ProfileCard';
-import { TerminalChat } from '@/components/TerminalChat';
-import { ActivityFeed } from '@/components/ActivityFeed';
-import { RigFilter } from '@/components/RigFilter';
-import { CodePanel } from '@/components/CodePanel';
-import { generateGraphData, NodeData } from '@/lib/mockData';
+import { useState, useMemo, useCallback } from 'react';
+import { LoopVisualization } from '@/components/LoopVisualization';
+import { ThreadTimeline } from '@/components/ThreadTimeline';
+import { LoopStream } from '@/components/LoopStream';
+import { InterventionPanel } from '@/components/InterventionPanel';
+import { ThreadInspector } from '@/components/ThreadInspector';
+import { RefinementHistory } from '@/components/RefinementHistory';
+import { SafeguardDashboard } from '@/components/SafeguardDashboard';
+import { 
+  generateLoomData, 
+  LoomData, 
+  RalphLoop, 
+  Thread, 
+  ForkPoint 
+} from '@/lib/loomData';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AnimatePresence } from 'framer-motion';
-import { Crosshair, ShieldAlert, Target, Share2, Search, Globe, Terminal, Code } from 'lucide-react';
-import { VoiceAI } from '@/components/VoiceAI';
+import { 
+  RefreshCw, Globe, Layers, Shield, 
+  Play, Pause, AlertTriangle, Zap
+} from 'lucide-react';
 
-// Generate data once (total ~27,500 nodes across all organizations)
-const graphData = generateGraphData();
+const loomData = generateLoomData();
 
 export default function Home() {
-  const [selectedNode, setSelectedNode] = useState<NodeData | null>(null);
-  const [filter, setFilter] = useState<'all' | 'exceptional'>('all');
-  const [zoomLevel, setZoomLevel] = useState<number>(1);
-  const [isTerminalOpen, setIsTerminalOpen] = useState(false);
-  const [isCodePanelOpen, setIsCodePanelOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [focusNodeId, setFocusNodeId] = useState<string | null>(null);
-  const [selectedRig, setSelectedRig] = useState<string | null>(null);
+  const [data, setData] = useState<LoomData>(loomData);
+  const [selectedLoop, setSelectedLoop] = useState<RalphLoop | null>(null);
+  const [selectedThread, setSelectedThread] = useState<Thread | null>(null);
+  const [filter, setFilter] = useState<'all' | 'interventions' | 'spinning'>('all');
 
-  // Stats
-  const totalNodes = graphData.nodes.length;
-  const exceptionalCount = graphData.nodes.filter(n => n.exceptional).length;
+  const spinningCount = useMemo(() => 
+    data.loops.filter(l => l.status === 'spinning').length, 
+    [data.loops]
+  );
+  
+  const interventionCount = useMemo(() => 
+    data.loops.filter(l => l.interventionRequired).length, 
+    [data.loops]
+  );
 
-  // Search results - limit to 8 for dropdown
-  const searchResults = useMemo(() => {
-    if (searchQuery.length < 2) return [];
-    const query = searchQuery.toLowerCase();
-    return graphData.nodes
-      .filter(n => n.name.toLowerCase().includes(query))
-      .slice(0, 8);
-  }, [searchQuery]);
+  const handleLoopSelect = useCallback((loop: RalphLoop) => {
+    setSelectedLoop(loop);
+    const thread = data.threads.find(t => t.id === loop.threadId);
+    setSelectedThread(thread || null);
+  }, [data.threads]);
 
-  const handleSearchSelect = (node: NodeData) => {
-    setSearchQuery('');
-    setFocusNodeId(node.id);
-    setTimeout(() => setFocusNodeId(null), 100);
-  };
+  const handleThreadSelect = useCallback((thread: Thread) => {
+    setSelectedThread(thread);
+    const loop = data.loops.find(l => l.threadId === thread.id);
+    setSelectedLoop(loop || null);
+  }, [data.loops]);
 
-  const handleVoicePersonFound = (node: NodeData) => {
-    setSelectedNode(node);
-    setFocusNodeId(node.id);
-    setTimeout(() => setFocusNodeId(null), 100);
-  };
+  const handleRunAnotherLoop = useCallback((loopId: string) => {
+    setData(prev => ({
+      ...prev,
+      loops: prev.loops.map(l => 
+        l.id === loopId 
+          ? { ...l, status: 'spinning' as const, iterationCount: l.iterationCount + 1, wheelSpeed: 60 }
+          : l
+      ),
+    }));
+  }, []);
 
-  // Compute connections for the currently selected node (for voice navigation)
-  const currentConnections = useMemo(() => {
-    if (!selectedNode) return [];
-    const connectedIds = new Set<string>();
-    graphData.links.forEach(link => {
-      const sourceId = typeof link.source === 'object' ? (link.source as any).id : link.source;
-      const targetId = typeof link.target === 'object' ? (link.target as any).id : link.target;
-      if (sourceId === selectedNode.id) connectedIds.add(targetId);
-      if (targetId === selectedNode.id) connectedIds.add(sourceId);
-    });
-    return graphData.nodes.filter(n => connectedIds.has(n.id) && n.id !== selectedNode.id);
-  }, [selectedNode]);
+  const handleResolveIntervention = useCallback((loopId: string, action: 'approve' | 'reject' | 'modify') => {
+    setData(prev => ({
+      ...prev,
+      loops: prev.loops.map(l => 
+        l.id === loopId 
+          ? { 
+              ...l, 
+              interventionRequired: false, 
+              interventionReason: undefined,
+              status: action === 'reject' ? 'failed' as const : 'spinning' as const,
+            }
+          : l
+      ),
+    }));
+  }, []);
+
+  const handleEngineerAway = useCallback((failureDomainId: string) => {
+    setData(prev => ({
+      ...prev,
+      failureDomains: prev.failureDomains.map(fd => 
+        fd.id === failureDomainId 
+          ? { ...fd, engineeredAway: true }
+          : fd
+      ),
+    }));
+  }, []);
+
+  const handleForkThread = useCallback((thread: Thread, forkPoint: ForkPoint) => {
+    console.log('Forking thread', thread.id, 'at', forkPoint.id);
+  }, []);
+
+  const handleLoadAsContext = useCallback((thread: Thread) => {
+    console.log('Loading thread as context', thread.id);
+  }, []);
+
+  const handleForkFromInspector = useCallback((threadId: string, decisionId: string) => {
+    console.log('Forking from inspector', threadId, decisionId);
+  }, []);
+
+  const closeInspector = useCallback(() => {
+    setSelectedLoop(null);
+    setSelectedThread(null);
+  }, []);
+
+  const relevantSafeguards = useMemo(() => {
+    if (!selectedThread) return data.safeguards;
+    return selectedThread.safeguards.length > 0 ? selectedThread.safeguards : data.safeguards;
+  }, [selectedThread, data.safeguards]);
 
   return (
     <div className="relative w-full h-screen bg-background overflow-hidden font-sans selection:bg-primary/20">
       
-      {/* Background Graph */}
-      <NetworkCanvas 
-        data={graphData} 
-        onNodeClick={setSelectedNode} 
+      <LoopVisualization
+        loops={data.loops}
+        convoys={data.convoys}
+        onLoopClick={handleLoopSelect}
+        selectedLoopId={selectedLoop?.id}
         filter={filter}
-        onZoomChange={setZoomLevel}
-        selectedNodeId={selectedNode?.id || null}
-        focusNodeId={focusNodeId}
-        selectedRig={selectedRig}
       />
 
-      {/* Header / Nav Overlay */}
       <div className="absolute top-0 left-0 right-0 p-6 pointer-events-none flex justify-between items-start z-10 h-32">
         <div className="pointer-events-auto flex items-start gap-6">
           <div className="hud-panel p-4 w-72 hud-corner-tl">
-             <div className="flex items-center gap-3 mb-2">
-                <div className="status-indicator" />
-                <span className="hud-text text-primary font-bold">multi-agent orchestration</span>
-             </div>
-             <div className="h-px bg-white/5 w-full mb-3" />
-             <h1 className="text-2xl font-bold uppercase tracking-wider text-foreground flex items-center gap-3">
-               <Globe className="h-6 w-6 text-primary" />
-               Gas Town <span className="text-white/20">V.01</span>
-             </h1>
-             <p className="hud-text mt-1">
-                Sector: <span className="text-secondary">Global</span> // Status: <span className="text-primary">Online</span>
-             </p>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="status-indicator" />
+              <span className="hud-text text-primary font-bold">agents-first infrastructure</span>
+            </div>
+            <div className="h-px bg-white/5 w-full mb-3" />
+            <h1 className="text-2xl font-bold uppercase tracking-wider text-foreground flex items-center gap-3">
+              <Layers className="h-6 w-6 text-primary" />
+              Loom <span className="text-white/20">V.01</span>
+            </h1>
+            <p className="hud-text mt-1">
+              Mode: <span className="text-secondary">Ralph Loops</span> // Status: <span className="text-primary">Weaving</span>
+            </p>
           </div>
           
           <div className="hud-panel p-3 flex gap-6 items-center">
-             <div className="text-center px-2">
-                <span className="block text-xl font-mono text-foreground">{totalNodes}</span>
-                <span className="hud-text">Agents</span>
-             </div>
-             <div className="w-px h-8 bg-white/5" />
-             <div className="text-center px-2">
-                <span className="block text-xl font-mono text-emerald-500">{graphData.nodes.filter(n => n.agentStatus === 'active').length}</span>
-                <span className="hud-text text-emerald-500/70">Active</span>
-             </div>
-             <div className="w-px h-8 bg-white/5" />
-             <div className="text-center px-2">
-                <span className="block text-xl font-mono text-amber-500">{graphData.nodes.filter(n => n.agentStatus === 'waiting').length}</span>
-                <span className="hud-text text-amber-500/70">Waiting</span>
-             </div>
-             <div className="w-px h-8 bg-white/5" />
-             <RigFilter selectedRig={selectedRig} onRigChange={setSelectedRig} />
-          </div>
-        </div>
-
-        <div className="pointer-events-auto flex gap-3 relative">
-          <Button 
-            onClick={() => setIsCodePanelOpen(!isCodePanelOpen)}
-            className={`bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 hover:border-primary/50 font-mono uppercase rounded-none h-10 px-6 backdrop-blur-sm transition-all ${isCodePanelOpen ? 'bg-primary/20 border-primary/50' : ''}`}
-            data-testid="open-code-panel"
-          >
-             <Code className="w-4 h-4 mr-2" /> Code
-          </Button>
-          <Button 
-            onClick={() => setIsTerminalOpen(!isTerminalOpen)}
-            className={`bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/20 hover:border-orange-500/50 font-mono uppercase rounded-none h-10 px-6 backdrop-blur-sm transition-all ${isTerminalOpen ? 'bg-orange-500/20 border-orange-500/50' : ''}`}
-            data-testid="open-terminal"
-          >
-             <Terminal className="w-4 h-4 mr-2" /> Connect
-          </Button>
-          <TerminalChat isOpen={isTerminalOpen} onClose={() => setIsTerminalOpen(false)} />
-        </div>
-      </div>
-
-      {/* Subtle Map Overlays - Refined */}
-      <div className="absolute inset-0 pointer-events-none">
-         {/* Large Circle */}
-         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] border border-white/5 rounded-full" />
-         
-         {/* Corner Markers */}
-         <div className="absolute top-12 left-12 w-4 h-4 border-t border-l border-white/10" />
-         <div className="absolute top-12 right-12 w-4 h-4 border-t border-r border-white/10" />
-         <div className="absolute bottom-12 left-12 w-4 h-4 border-b border-l border-white/10" />
-         <div className="absolute bottom-12 right-12 w-4 h-4 border-b border-r border-white/10" />
-      </div>
-
-      {/* Bottom Controls */}
-      <div className="absolute bottom-8 left-8 z-10 pointer-events-auto flex gap-3 items-stretch">
-        <div className="hud-panel p-1 hud-corner-bl flex flex-col gap-1 w-80">
-          <div className="flex items-center justify-between p-2 mb-1">
-             <span className="hud-text">Signal Filter</span>
-             <Target className="w-3 h-3 text-muted-foreground" />
-          </div>
-          
-          {/* Search Input */}
-          <div className="relative px-1 pb-2">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by name..."
-                data-testid="input-search"
-                className="w-full h-8 pl-8 pr-3 bg-black/30 border border-white/10 rounded-none text-xs text-white placeholder:text-muted-foreground font-mono focus:outline-none focus:border-primary/50 focus:bg-black/40"
-              />
+            <div className="text-center px-2">
+              <span className="block text-xl font-mono text-foreground">{data.weavers.length}</span>
+              <span className="hud-text">Weavers</span>
             </div>
-            
-            {/* Search Results Dropdown */}
-            {searchResults.length > 0 && (
-              <div className="absolute left-1 right-1 top-full mt-1 bg-background/95 border border-white/10 backdrop-blur-sm z-50 max-h-64 overflow-y-auto">
-                {searchResults.map((node) => (
-                  <button
-                    key={node.id}
-                    onClick={() => handleSearchSelect(node)}
-                    data-testid={`search-result-${node.id}`}
-                    className="w-full px-3 py-2 flex items-center gap-3 text-left hover:bg-white/5 border-b border-white/5 last:border-b-0 transition-colors"
-                  >
-                    <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">
-                      {node.name.charAt(0)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-xs text-white font-medium truncate">{node.name}</div>
-                      <div className="text-[10px] text-muted-foreground truncate">{node.role} • {node.company}</div>
-                    </div>
-                    {node.exceptional && (
-                      <div className="w-2 h-2 rounded-full bg-secondary flex-shrink-0" />
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          
-          <div className="flex gap-1 bg-black/20 p-1">
-            <Button 
-              variant="ghost"
-              onClick={() => setFilter('all')}
-              className={`flex-1 rounded-none font-mono text-[10px] uppercase h-8 ${filter === 'all' ? 'bg-white/10 text-white' : 'text-muted-foreground hover:text-white hover:bg-white/5'}`}
-            >
-              All Agents
-            </Button>
-            <Button 
-              variant="ghost"
-              onClick={() => setFilter('exceptional')}
-              className={`flex-1 rounded-none font-mono text-[10px] uppercase h-8 ${filter === 'exceptional' ? 'bg-secondary/10 text-secondary border border-secondary/20' : 'text-muted-foreground hover:text-white hover:bg-white/5'}`}
-            >
-              Mayor Only
-            </Button>
+            <div className="w-px h-8 bg-white/5" />
+            <div className="text-center px-2">
+              <span className="block text-xl font-mono text-emerald-500">{spinningCount}</span>
+              <span className="hud-text text-emerald-500/70">Spinning</span>
+            </div>
+            <div className="w-px h-8 bg-white/5" />
+            <div className="text-center px-2">
+              <span className={`block text-xl font-mono ${interventionCount > 0 ? 'text-amber-500' : 'text-muted-foreground'}`}>
+                {interventionCount}
+              </span>
+              <span className={`hud-text ${interventionCount > 0 ? 'text-amber-500/70' : ''}`}>
+                Interventions
+              </span>
+            </div>
           </div>
         </div>
+
+        <div className="pointer-events-auto flex gap-3 items-center">
+          <div className="hud-panel p-2 flex gap-1">
+            {(['all', 'spinning', 'interventions'] as const).map((f) => (
+              <Button
+                key={f}
+                variant="ghost"
+                size="sm"
+                onClick={() => setFilter(f)}
+                className={`text-[10px] uppercase h-7 px-3 ${
+                  filter === f 
+                    ? 'bg-primary/10 text-primary' 
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+                data-testid={`filter-${f}`}
+              >
+                {f === 'all' && <Globe className="w-3 h-3 mr-1" />}
+                {f === 'spinning' && <RefreshCw className="w-3 h-3 mr-1" />}
+                {f === 'interventions' && <AlertTriangle className="w-3 h-3 mr-1" />}
+                {f}
+              </Button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] border border-white/3 rounded-full" />
         
-        <VoiceAI 
-          peopleData={graphData.nodes} 
-          onPersonFound={handleVoicePersonFound}
-          currentConnections={currentConnections}
+        <div className="absolute top-12 left-12 w-4 h-4 border-t border-l border-white/10" />
+        <div className="absolute top-12 right-12 w-4 h-4 border-t border-r border-white/10" />
+        <div className="absolute bottom-12 left-12 w-4 h-4 border-b border-l border-white/10" />
+        <div className="absolute bottom-12 right-12 w-4 h-4 border-b border-r border-white/10" />
+      </div>
+
+      <ThreadTimeline
+        threads={data.threads}
+        selectedThreadId={selectedThread?.id || null}
+        onThreadSelect={handleThreadSelect}
+        onFork={handleForkThread}
+        onLoadAsContext={handleLoadAsContext}
+      />
+
+      <InterventionPanel
+        loops={data.loops}
+        failureDomains={data.failureDomains}
+        onResolve={handleResolveIntervention}
+        onEngineerAway={handleEngineerAway}
+        onLoopSelect={handleLoopSelect}
+      />
+
+      <div className="absolute bottom-32 right-6 z-10 pointer-events-auto space-y-4">
+        <SafeguardDashboard 
+          systemHealth={data.systemHealth}
+          safeguards={data.safeguards}
         />
       </div>
 
-      {/* Activity Feed - Left Side */}
-      <div className="absolute left-6 top-44 z-10 pointer-events-auto">
-        <ActivityFeed 
-          nodes={graphData.nodes} 
-          onNodeSelect={(node) => {
-            setSelectedNode(node);
-            setFocusNodeId(node.id);
-            setTimeout(() => setFocusNodeId(null), 100);
-          }}
+      <div className="absolute bottom-32 left-6 z-10 pointer-events-auto">
+        <RefinementHistory 
+          loops={data.loops}
+          onRunAnotherLoop={handleRunAnotherLoop}
         />
       </div>
 
-      {/* Code Panel */}
-      <AnimatePresence>
-        {isCodePanelOpen && (
-          <CodePanel 
-            isOpen={isCodePanelOpen}
-            onClose={() => setIsCodePanelOpen(false)}
-            nodes={graphData.nodes}
-            onNodeSelect={(node) => {
-              setSelectedNode(node);
-              setFocusNodeId(node.id);
-              setTimeout(() => setFocusNodeId(null), 100);
-            }}
-          />
-        )}
-      </AnimatePresence>
+      <LoopStream
+        loops={data.loops}
+        onLoopSelect={handleLoopSelect}
+        onRunAnotherLoop={handleRunAnotherLoop}
+        selectedLoopId={selectedLoop?.id}
+      />
 
-      {/* Contextual Card Sidebar */}
       <AnimatePresence>
-        {selectedNode && (
-          <ProfileCard 
-            node={selectedNode} 
-            onClose={() => setSelectedNode(null)}
-            graphData={graphData}
-            onNodeSelect={(node) => {
-              setSelectedNode(node);
-              setFocusNodeId(node.id);
-              setTimeout(() => setFocusNodeId(null), 100);
-            }}
+        {selectedLoop && (
+          <ThreadInspector
+            loop={selectedLoop}
+            thread={selectedThread}
+            safeguards={relevantSafeguards}
+            onClose={closeInspector}
+            onRunAnotherLoop={handleRunAnotherLoop}
+            onForkThread={handleForkFromInspector}
           />
         )}
       </AnimatePresence>
