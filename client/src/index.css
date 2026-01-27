@@ -234,3 +234,68 @@
 .refinement-polished {
   background: linear-gradient(135deg, rgba(74, 222, 128, 0.05), rgba(34, 197, 94, 0.1));
 }
+
+/* Embedded Terminal Styles */
+.terminal-container {
+  @apply bg-[#0d0f12] border border-white/5 rounded-lg overflow-hidden;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
+}
+
+.terminal-compact {
+  @apply bg-[#0d0f12]/80 border border-white/5 rounded hover:bg-[#0d0f12] transition-colors;
+}
+
+.terminal-header {
+  @apply bg-[#151820];
+}
+
+.terminal-output {
+  @apply bg-[#0a0c0f];
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.terminal-output::-webkit-scrollbar {
+  width: 4px;
+}
+
+.terminal-output::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.terminal-output::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.terminal-input-container {
+  @apply bg-[#0d0f12];
+}
+
+.terminal-input {
+  caret-color: #34d399;
+}
+
+.terminal-input::placeholder {
+  @apply text-gray-600;
+}
+
+.terminal-line {
+  @apply py-0.5;
+}
+
+/* Terminal cursor blink animation */
+@keyframes terminal-cursor-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.terminal-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  background: #34d399;
+  animation: terminal-cursor-blink 1s step-end infinite;
+  vertical-align: text-bottom;
+  margin-left: 1px;
+}

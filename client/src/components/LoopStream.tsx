@@ -5,10 +5,11 @@ import {
 } from '@/lib/loomData';
 import { 
   Play, Pause, RotateCcw, Zap, AlertTriangle, 
-  ChevronUp, ChevronDown, RefreshCw
+  ChevronUp, ChevronDown, RefreshCw, Terminal
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { EmbeddedTerminal } from './EmbeddedTerminal';
 
 interface LoopStreamProps {
   loops: RalphLoop[];
@@ -30,6 +31,7 @@ export function LoopStream({
 }: LoopStreamProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [streamItems, setStreamItems] = useState<StreamItem[]>([]);
+  const [terminalLoopId, setTerminalLoopId] = useState<string | null>(null);
 
   useEffect(() => {
     setStreamItems(
@@ -148,6 +150,7 @@ export function LoopStream({
               {sortedItems.slice(0, 12).map((item) => {
                 const speed = getSpeedIndicator(item.animatedSpeed);
                 const isSelected = selectedLoopId === item.loop.id;
+                const isTerminalOpen = terminalLoopId === item.loop.id;
                 
                 return (
                   <motion.div
@@ -157,7 +160,7 @@ export function LoopStream({
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
                     whileHover={{ scale: 1.02 }}
-                    className={`w-48 p-3 rounded border transition-all cursor-pointer ${
+                    className={`w-52 p-3 rounded border transition-all cursor-pointer ${
                       isSelected
                         ? 'border-primary/50 bg-primary/5'
                         : item.loop.interventionRequired
@@ -180,20 +183,34 @@ export function LoopStream({
                         {item.loop.mode.toUpperCase()}
                       </Badge>
                       
-                      {item.loop.interventionRequired ? (
-                        <AlertTriangle className="w-4 h-4 text-amber-500 animate-pulse" />
-                      ) : item.loop.status === 'spinning' ? (
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 2 / (item.loop.wheelSpeed / 50), repeat: Infinity, ease: 'linear' }}
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setTerminalLoopId(isTerminalOpen ? null : item.loop.id);
+                          }}
+                          className={`p-1 rounded hover:bg-white/10 transition-colors ${isTerminalOpen ? 'bg-emerald-500/20' : ''}`}
+                          title="Toggle Terminal"
+                          data-testid={`stream-terminal-${item.loop.id}`}
                         >
-                          <RefreshCw className="w-4 h-4 text-emerald-500" />
-                        </motion.div>
-                      ) : item.loop.status === 'completed' ? (
-                        <Zap className="w-4 h-4 text-blue-500" />
-                      ) : (
-                        <Pause className="w-4 h-4 text-muted-foreground" />
-                      )}
+                          <Terminal className={`w-3 h-3 ${isTerminalOpen ? 'text-emerald-400' : 'text-muted-foreground'}`} />
+                        </button>
+                        
+                        {item.loop.interventionRequired ? (
+                          <AlertTriangle className="w-4 h-4 text-amber-500 animate-pulse" />
+                        ) : item.loop.status === 'spinning' ? (
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 2 / (item.loop.wheelSpeed / 50), repeat: Infinity, ease: 'linear' }}
+                          >
+                            <RefreshCw className="w-4 h-4 text-emerald-500" />
+                          </motion.div>
+                        ) : item.loop.status === 'completed' ? (
+                          <Zap className="w-4 h-4 text-blue-500" />
+                        ) : (
+                          <Pause className="w-4 h-4 text-muted-foreground" />
+                        )}
+                      </div>
                     </div>
 
                     <div className="text-xs font-medium text-foreground truncate mb-1">
@@ -267,6 +284,26 @@ export function LoopStream({
                         </div>
                       </div>
                     )}
+
+                    <AnimatePresence>
+                      {isTerminalOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="mt-2 pt-2 border-t border-white/10"
+                        >
+                          <EmbeddedTerminal
+                            loopId={item.loop.id}
+                            loopName={item.loop.weaverName}
+                            mode="inline"
+                            maxHeight="120px"
+                            showHeader={false}
+                            className="rounded"
+                          />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </motion.div>
                 );
               })}

@@ -7,10 +7,11 @@ import {
 import { 
   AlertTriangle, Shield, CheckCircle, XCircle, 
   ChevronRight, ChevronDown, Zap, Lock, Database, 
-  Globe, Code, X
+  Globe, Code, X, Terminal
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { EmbeddedTerminal } from './EmbeddedTerminal';
 
 interface InterventionPanelProps {
   loops: RalphLoop[];
@@ -29,6 +30,7 @@ export function InterventionPanel({
 }: InterventionPanelProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [expandedLoops, setExpandedLoops] = useState<Set<string>>(new Set());
+  const [terminalLoopId, setTerminalLoopId] = useState<string | null>(null);
 
   const interventionLoops = loops.filter(l => l.interventionRequired);
   const activeFailures = failureDomains.filter(fd => !fd.engineeredAway);
@@ -51,6 +53,10 @@ export function InterventionPanel({
       newExpanded.add(loopId);
     }
     setExpandedLoops(newExpanded);
+  };
+
+  const openTerminal = (loopId: string | null) => {
+    setTerminalLoopId(loopId);
   };
 
   if (interventionLoops.length === 0 && activeFailures.length === 0) {
@@ -117,6 +123,7 @@ export function InterventionPanel({
               <div className="space-y-2">
                 {interventionLoops.map((loop) => {
                   const isExpanded = expandedLoops.has(loop.id);
+                  const isTerminalOpen = terminalLoopId === loop.id;
                   
                   return (
                     <motion.div
@@ -215,6 +222,39 @@ export function InterventionPanel({
                                   <XCircle className="w-3 h-3" />
                                 </Button>
                               </div>
+
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className={`w-full h-7 text-[10px] ${isTerminalOpen ? 'bg-emerald-500/10 text-emerald-400' : 'text-emerald-400/70'}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openTerminal(isTerminalOpen ? null : loop.id);
+                                }}
+                                data-testid={`terminal-toggle-${loop.id}`}
+                              >
+                                <Terminal className="w-3 h-3 mr-1" />
+                                {isTerminalOpen ? 'Hide Terminal' : 'Open Claude Code Terminal'}
+                              </Button>
+
+                              <AnimatePresence>
+                                {isTerminalOpen && (
+                                  <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: 'auto', opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                  >
+                                    <EmbeddedTerminal
+                                      loopId={loop.id}
+                                      loopName={loop.weaverName}
+                                      mode="full"
+                                      maxHeight="200px"
+                                      showHeader={true}
+                                      onClose={() => setTerminalLoopId(null)}
+                                    />
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
                               
                               <Button
                                 variant="ghost"

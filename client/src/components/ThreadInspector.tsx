@@ -7,11 +7,12 @@ import {
 import { 
   X, GitBranch, Clock, Play, Pause, RotateCcw, 
   Shield, CheckCircle, XCircle, AlertCircle, 
-  FileCode, ChevronRight, Zap, Target
+  FileCode, ChevronRight, Zap, Target, Terminal
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { EmbeddedTerminal } from './EmbeddedTerminal';
 
 interface ThreadInspectorProps {
   loop: RalphLoop | null;
@@ -22,7 +23,7 @@ interface ThreadInspectorProps {
   onForkThread: (threadId: string, decisionId: string) => void;
 }
 
-type TabType = 'overview' | 'thread' | 'safeguards' | 'files';
+type TabType = 'overview' | 'thread' | 'safeguards' | 'files' | 'terminal';
 
 export function ThreadInspector({
   loop,
@@ -39,7 +40,8 @@ export function ThreadInspector({
   const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
     { id: 'overview', label: 'Overview', icon: <Target className="w-3 h-3" /> },
     { id: 'thread', label: 'Thread', icon: <GitBranch className="w-3 h-3" /> },
-    { id: 'safeguards', label: 'Safeguards', icon: <Shield className="w-3 h-3" /> },
+    { id: 'terminal', label: 'Terminal', icon: <Terminal className="w-3 h-3" /> },
+    { id: 'safeguards', label: 'Guards', icon: <Shield className="w-3 h-3" /> },
     { id: 'files', label: 'Files', icon: <FileCode className="w-3 h-3" /> },
   ];
 
@@ -130,7 +132,7 @@ export function ThreadInspector({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 py-2 px-3 text-[10px] uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 ${
+              className={`flex-1 py-2 px-2 text-[9px] uppercase tracking-wider transition-colors flex items-center justify-center gap-1 ${
                 activeTab === tab.id
                   ? 'text-primary border-b-2 border-primary bg-primary/5'
                   : 'text-muted-foreground hover:text-foreground'
@@ -318,6 +320,19 @@ export function ThreadInspector({
                   );
                 })}
               </div>
+            </div>
+          )}
+
+          {activeTab === 'terminal' && (
+            <div className="h-full -m-4">
+              <EmbeddedTerminal
+                loopId={loop.id}
+                loopName={loop.weaverName}
+                mode="full"
+                maxHeight="calc(100vh - 350px)"
+                showHeader={false}
+                className="h-full rounded-none border-0"
+              />
             </div>
           )}
 
