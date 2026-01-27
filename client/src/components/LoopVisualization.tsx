@@ -389,7 +389,7 @@ export function LoopVisualization({
       </div>
 
 
-      <div className="absolute bottom-8 left-8 flex flex-col gap-2 pointer-events-auto" data-interactive>
+      <div className="absolute bottom-8 left-8 flex flex-row gap-2 pointer-events-auto" data-interactive>
         <button
           onClick={zoomIn}
           className="hud-panel p-2 hover:bg-primary/20 transition-colors"
