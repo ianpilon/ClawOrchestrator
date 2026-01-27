@@ -164,7 +164,7 @@ export default function Home() {
         </div>
 
         <div className="pointer-events-auto flex gap-3 items-center">
-          <div className="hud-panel p-2 flex gap-1">
+          <div className="flex gap-1">
             {(['all', 'spinning', 'interventions'] as const).map((f) => (
               <Button
                 key={f}
@@ -190,7 +190,7 @@ export default function Home() {
             variant="ghost"
             size="sm"
             onClick={() => setSettingsOpen(true)}
-            className="hud-panel h-9 w-9 p-0"
+            className="h-9 w-9 p-0"
             data-testid="open-settings"
           >
             <Settings className="w-4 h-4" />
