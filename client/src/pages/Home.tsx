@@ -124,8 +124,8 @@ export default function Home() {
         filter={filter}
       />
 
-      <div className="absolute top-0 left-0 right-0 p-6 pointer-events-none flex justify-between items-start z-10 h-32">
-        <div className="pointer-events-auto flex items-start gap-6">
+      <div className="absolute top-0 left-0 right-0 p-6 pointer-events-none flex justify-between items-start z-10 bg-transparent">
+        <div className="pointer-events-auto flex items-start gap-6 bg-transparent">
           <div className="hud-panel p-4 w-72 hud-corner-tl">
             <div className="flex items-center gap-3 mb-2">
               <div className="status-indicator" />
