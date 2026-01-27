@@ -10,6 +10,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { EmbeddedTerminal } from './EmbeddedTerminal';
+import { AIHelpTooltip, ComponentContext } from './AIHelpTooltip';
 
 interface LoopStreamProps {
   loops: RalphLoop[];
@@ -68,6 +69,25 @@ export function LoopStream({
 
   const activeCount = loops.filter(l => l.status === 'spinning').length;
   const interventionCount = loops.filter(l => l.interventionRequired).length;
+  const completedCount = loops.filter(l => l.status === 'completed').length;
+
+  const aiHelpContext: ComponentContext = useMemo(() => ({
+    componentName: 'Loop Stream',
+    purpose: 'A real-time feed showing all running loops as cards. Each card displays the loop\'s current state, speed, and allows quick actions like pausing or running additional iterations.',
+    currentState: `${activeCount} loops actively spinning, ${completedCount} completed, ${interventionCount} requiring intervention. Cards are sorted by priority: interventions first, then by wheel speed.`,
+    availableActions: [
+      'Click any card to inspect the loop in detail',
+      'Click the terminal icon to chat with Claude about that loop',
+      'Use "Run Another Loop" to trigger additional iterations',
+      'Collapse the panel to focus on the main canvas',
+    ],
+    loomConcepts: [
+      'Wheel Speed - How fast the loop is iterating (RPM)',
+      'Speed Indicator - Color-coded bars showing performance',
+      'Refinement Level - How polished the code is after iterations',
+      'Intervention Required - Agent needs human guidance',
+    ],
+  }), [activeCount, completedCount, interventionCount]);
 
   const getSpeedIndicator = (speed: number) => {
     if (speed >= 80) return { color: '#22c55e', label: 'FAST', bars: 5 };
@@ -112,7 +132,8 @@ export function LoopStream({
       exit={{ y: 200 }}
       className="absolute bottom-8 left-8 right-8 z-20"
     >
-      <div className="hud-panel hud-corner-bl hud-corner-br">
+      <div className="hud-panel hud-corner-bl hud-corner-br relative">
+        <AIHelpTooltip context={aiHelpContext} position="top-right" />
         <div className="p-3 border-b border-white/5 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">

@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
   SystemHealth, Safeguard, 
@@ -8,6 +9,7 @@ import {
   RotateCcw, Zap, Target, Activity, TrendingUp
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { AIHelpTooltip, ComponentContext } from './AIHelpTooltip';
 
 interface SafeguardDashboardProps {
   systemHealth: SystemHealth;
@@ -15,6 +17,26 @@ interface SafeguardDashboardProps {
 }
 
 export function SafeguardDashboard({ systemHealth, safeguards }: SafeguardDashboardProps) {
+  const activeSafeguards = safeguards.filter(s => s.status === 'active');
+  const triggeredSafeguards = safeguards.filter(s => s.status === 'triggered');
+
+  const aiHelpContext: ComponentContext = useMemo(() => ({
+    componentName: 'Push-to-Main Confidence',
+    purpose: 'Shows your deployment confidence score - how safe it is to push code to production. Higher scores mean more safeguards are in place and tests are passing.',
+    currentState: `Overall health: ${systemHealth.overallScore}%. Deployment status: ${systemHealth.deploymentStatus}. ${activeSafeguards.length} safeguards active, ${triggeredSafeguards.length} triggered (protecting you).`,
+    availableActions: [
+      'Monitor the confidence score before deploying',
+      'Review triggered safeguards to understand what\'s being protected',
+      'Check individual metrics for test coverage, type safety, and error rates',
+    ],
+    loomConcepts: [
+      'Safeguard - Automated protection (rollback, feature flags, health checks)',
+      'Push-to-Main Confidence - Score indicating deployment safety',
+      'Triggered Safeguard - A protection that\'s actively preventing issues',
+      'Test Coverage - Percentage of code covered by automated tests',
+    ],
+  }), [systemHealth.overallScore, systemHealth.deploymentStatus, activeSafeguards.length, triggeredSafeguards.length]);
+
   const getHealthColor = (score: number) => {
     if (score >= 90) return '#22c55e';
     if (score >= 70) return '#84cc16';
@@ -41,11 +63,9 @@ export function SafeguardDashboard({ systemHealth, safeguards }: SafeguardDashbo
     }
   };
 
-  const activeSafeguards = safeguards.filter(s => s.status === 'active');
-  const triggeredSafeguards = safeguards.filter(s => s.status === 'triggered');
-
   return (
-    <div className="hud-panel p-4 w-80 hud-corner-br">
+    <div className="hud-panel p-4 w-80 hud-corner-br relative">
+      <AIHelpTooltip context={aiHelpContext} position="top-left" />
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Shield className="w-4 h-4 text-primary" />

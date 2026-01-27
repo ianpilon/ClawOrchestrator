@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   RalphLoop, FailureDomain, 
@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { EmbeddedTerminal } from './EmbeddedTerminal';
+import { AIHelpTooltip, ComponentContext } from './AIHelpTooltip';
 
 interface InterventionPanelProps {
   loops: RalphLoop[];
@@ -34,6 +35,25 @@ export function InterventionPanel({
 
   const interventionLoops = loops.filter(l => l.interventionRequired);
   const activeFailures = failureDomains.filter(fd => !fd.engineeredAway);
+
+  const aiHelpContext: ComponentContext = useMemo(() => ({
+    componentName: 'Intervention Panel',
+    purpose: 'This panel only appears when agents encounter "failure domains" - areas where AI autonomy is intentionally limited. You provide guidance here so agents can continue working.',
+    currentState: `${interventionLoops.length} loops awaiting your decision. ${activeFailures.length} active failure domains in the system. These are areas where human expertise is needed.`,
+    availableActions: [
+      'Approve - Accept the agent\'s proposed approach',
+      'Reject - Tell the agent to try a different approach',
+      'Modify - Provide specific guidance or corrections',
+      'Open terminal to discuss the situation with Claude',
+      'Engineer Away - Mark a failure domain as no longer needing intervention',
+    ],
+    loomConcepts: [
+      'Failure Domain - Area where AI autonomy is limited (security, architecture, etc.)',
+      'Intervention - Human guidance required before agent can proceed',
+      'Engineer Away - Create a safeguard so this intervention is no longer needed',
+      'Agents-first - Interventions are exceptions, not the norm',
+    ],
+  }), [interventionLoops.length, activeFailures.length]);
 
   const getCategoryIcon = (category: FailureDomain['category']) => {
     switch (category) {
@@ -95,7 +115,8 @@ export function InterventionPanel({
       exit={{ x: 400 }}
       className="fixed top-44 right-6 z-30 w-96 max-h-[calc(100vh-250px)] flex flex-col"
     >
-      <div className="hud-panel hud-corner-tr border-amber-500/30 flex flex-col overflow-hidden">
+      <div className="hud-panel hud-corner-tr border-amber-500/30 flex flex-col overflow-hidden relative">
+        <AIHelpTooltip context={aiHelpContext} position="top-left" />
         <div className="p-3 border-b border-amber-500/20 bg-amber-500/5 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-amber-500 animate-pulse" />
