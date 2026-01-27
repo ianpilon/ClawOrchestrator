@@ -31,8 +31,12 @@ export function AIHelpTooltip({ context, position = 'top-right', className = '' 
   const [isLoading, setIsLoading] = useState(false);
   const [hasApiKey, setHasApiKey] = useState(() => !!localStorage.getItem(API_KEY_STORAGE_KEY));
   const [autoExplained, setAutoExplained] = useState(false);
+  const [smartPosition, setSmartPosition] = useState<{ x: 'left' | 'right'; y: 'top' | 'bottom' }>({ x: 'right', y: 'bottom' });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const popoverWidth = 320;
+  const popoverHeight = 320;
 
   useEffect(() => {
     const checkApiKey = () => {
@@ -68,6 +72,50 @@ export function AIHelpTooltip({ context, position = 'top-right', className = '' 
       inputRef.current.focus();
     }
   }, [isOpen]);
+
+  const calculateSmartPosition = useCallback(() => {
+    if (!buttonRef.current) return;
+    
+    const rect = buttonRef.current.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    const spaceRight = viewportWidth - rect.right;
+    const spaceLeft = rect.left;
+    const spaceBottom = viewportHeight - rect.bottom;
+    const spaceTop = rect.top;
+    
+    const x: 'left' | 'right' = spaceRight >= popoverWidth ? 'right' : 
+                                 spaceLeft >= popoverWidth ? 'left' : 
+                                 spaceRight >= spaceLeft ? 'right' : 'left';
+    
+    const y: 'top' | 'bottom' = spaceBottom >= popoverHeight ? 'bottom' : 
+                                 spaceTop >= popoverHeight ? 'top' : 
+                                 spaceBottom >= spaceTop ? 'bottom' : 'top';
+    
+    setSmartPosition({ x, y });
+  }, []);
+
+  const handleOpen = () => {
+    calculateSmartPosition();
+    setIsOpen(!isOpen);
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    const handleResize = () => {
+      calculateSmartPosition();
+    };
+    
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('scroll', handleResize, true);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleResize, true);
+    };
+  }, [isOpen, calculateSmartPosition]);
 
   const getSystemPrompt = () => {
     return `You are Loom's AI assistant, helping users understand the Loom infrastructure orchestrator.
@@ -228,18 +276,61 @@ Be helpful, concise, and explain things in simple terms. Focus on what the user 
     'bottom-right': 'bottom-2 right-2',
   };
 
-  const popoverPositionClasses = {
-    'top-left': 'top-8 left-0',
-    'top-right': 'top-8 right-0',
-    'bottom-left': 'bottom-8 left-0',
-    'bottom-right': 'bottom-8 right-0',
+  const getPopoverStyle = (): React.CSSProperties => {
+    if (!buttonRef.current) {
+      return { position: 'fixed', width: popoverWidth, zIndex: 9999 };
+    }
+    
+    const rect = buttonRef.current.getBoundingClientRect();
+    const padding = 8;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    let left: number;
+    let top: number;
+    
+    if (smartPosition.y === 'bottom') {
+      top = rect.bottom + padding;
+    } else {
+      top = rect.top - popoverHeight - padding;
+    }
+    
+    if (smartPosition.x === 'right') {
+      left = rect.left;
+    } else {
+      left = rect.right - popoverWidth;
+    }
+    
+    if (left + popoverWidth > viewportWidth - padding) {
+      left = viewportWidth - popoverWidth - padding;
+    }
+    if (left < padding) {
+      left = padding;
+    }
+    
+    if (top + popoverHeight > viewportHeight - padding) {
+      top = viewportHeight - popoverHeight - padding;
+    }
+    if (top < padding) {
+      top = padding;
+    }
+    
+    return {
+      position: 'fixed',
+      width: popoverWidth,
+      maxHeight: popoverHeight,
+      zIndex: 9999,
+      left,
+      top,
+    };
   };
 
   return (
     <div className={`absolute ${positionClasses[position]} z-50 ${className}`}>
       <motion.button
+        ref={buttonRef}
         data-testid={`ai-help-${context.componentName.toLowerCase().replace(/\s+/g, '-')}`}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleOpen}
         className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500/80 to-blue-500/80 hover:from-purple-400 hover:to-blue-400 flex items-center justify-center shadow-lg shadow-purple-500/20 border border-white/20 backdrop-blur-sm transition-all"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
@@ -250,11 +341,12 @@ Be helpful, concise, and explain things in simple terms. Focus on what the user 
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: -10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: -10 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.2 }}
-            className={`absolute ${popoverPositionClasses[position]} w-80 bg-slate-900/95 backdrop-blur-xl rounded-lg border border-white/10 shadow-2xl shadow-black/50 overflow-hidden`}
+            style={getPopoverStyle()}
+            className="bg-slate-900/95 backdrop-blur-xl rounded-lg border border-white/10 shadow-2xl shadow-black/50 overflow-hidden flex flex-col"
           >
             <div className="flex items-center justify-between px-3 py-2 bg-gradient-to-r from-purple-500/20 to-blue-500/20 border-b border-white/10">
               <div className="flex items-center gap-2">
