@@ -5,7 +5,6 @@ import {
   LoopMode, LoopStatus
 } from '@/lib/loomData';
 import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
-import { AIHelpTooltip, ComponentContext } from './AIHelpTooltip';
 
 interface LoopVisualizationProps {
   loops: RalphLoop[];
@@ -91,28 +90,6 @@ export function LoopVisualization({
   const zoomOut = useCallback(() => {
     setZoom(z => Math.max(MIN_ZOOM, z * 0.8));
   }, []);
-
-  const spinningCount = loops.filter(l => l.status === 'spinning').length;
-  const interventionCount = loops.filter(l => l.interventionRequired).length;
-
-  const aiHelpContext: ComponentContext = useMemo(() => ({
-    componentName: 'Loop Canvas',
-    purpose: 'This is the main visualization showing all Ralph loops (AI agents) running in your infrastructure. Each spinning circle represents an autonomous agent working on a task.',
-    currentState: `Currently showing ${loops.length} loops: ${spinningCount} spinning (actively working), ${interventionCount} requiring intervention. Zoom level: ${Math.round(zoom * 100)}%. Filter: ${filter}.`,
-    availableActions: [
-      'Click on any loop to inspect it',
-      'Scroll to zoom in/out',
-      'Click and drag to pan around',
-      'Use filter buttons in the header to show only specific loop types',
-    ],
-    loomConcepts: [
-      'Ralph Loop - A recursive AI coding agent loop',
-      'Forward Mode (green) - Building new features',
-      'Reverse Mode (purple) - Cloning/learning from existing code', 
-      'System Mode (blue) - Running tests and validation',
-      'Wheel Speed - How fast the loop is iterating',
-    ],
-  }), [loops.length, spinningCount, interventionCount, zoom, filter]);
 
   const filteredLoops = useMemo(() => {
     switch (filter) {
@@ -437,10 +414,6 @@ export function LoopVisualization({
           <span>0</span>
           <span>100</span>
         </div>
-      </div>
-
-      <div className="absolute top-4 left-4 pointer-events-auto z-10">
-        <AIHelpTooltip context={aiHelpContext} position="bottom-right" className="static" />
       </div>
 
       <div className="absolute bottom-8 left-8 flex flex-col gap-2 pointer-events-auto" data-interactive>

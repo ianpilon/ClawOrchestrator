@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Thread, ThreadDecision, ForkPoint, 
@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AIHelpTooltip, ComponentContext } from './AIHelpTooltip';
 
 interface ThreadTimelineProps {
   threads: Thread[];
@@ -53,29 +52,6 @@ export function ThreadTimeline({
     return statusOrder[a.status] - statusOrder[b.status];
   });
 
-  const spinningThreads = threads.filter(t => t.status === 'spinning').length;
-  const completedThreads = threads.filter(t => t.status === 'completed').length;
-  const totalDecisions = threads.reduce((sum, t) => sum + t.decisions.length, 0);
-  const totalForkPoints = threads.reduce((sum, t) => sum + t.forkPoints.length, 0);
-
-  const aiHelpContext: ComponentContext = useMemo(() => ({
-    componentName: 'Thread Timeline',
-    purpose: 'Threads are the audit trail of everything AI agents do. Each thread records decisions made during a loop, allowing you to track history, share context, and fork from any decision point.',
-    currentState: `Showing ${threads.length} threads: ${spinningThreads} active, ${completedThreads} completed. Total: ${totalDecisions} decisions recorded, ${totalForkPoints} fork points available.`,
-    availableActions: [
-      'Click a thread to expand and see its decision history',
-      'Use "Load as Context" to give a thread\'s history to a new loop',
-      'Fork from any decision point to try a different approach',
-      'Share threads with team members',
-    ],
-    loomConcepts: [
-      'Thread - A complete audit trail of a loop\'s execution',
-      'Decision - A choice made by the agent during execution',
-      'Fork Point - A location where you can branch off and try alternatives',
-      'Load as Context - Feed a thread\'s history to inform a new loop',
-    ],
-  }), [threads.length, spinningThreads, completedThreads, totalDecisions, totalForkPoints]);
-
   if (isCollapsed) {
     return (
       <motion.div 
@@ -104,8 +80,7 @@ export function ThreadTimeline({
       exit={{ x: -300 }}
       className="absolute left-6 top-44 z-20 w-80 max-h-[calc(100vh-250px)] flex flex-col"
     >
-      <div className="hud-panel hud-corner-tl flex flex-col overflow-hidden relative">
-        <AIHelpTooltip context={aiHelpContext} position="top-right" />
+      <div className="hud-panel hud-corner-tl flex flex-col overflow-hidden">
         <div className="p-3 border-b border-white/5 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <GitBranch className="w-4 h-4 text-primary" />

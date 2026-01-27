@@ -1,9 +1,7 @@
-import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { RalphLoop, refinementColors, RefinementLevel } from '@/lib/loomData';
 import { Layers, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { AIHelpTooltip, ComponentContext } from './AIHelpTooltip';
 
 interface RefinementHistoryProps {
   loops: RalphLoop[];
@@ -57,27 +55,8 @@ export function RefinementHistory({ loops, onRunAnotherLoop }: RefinementHistory
 
   const roughLoops = loops.filter(l => l.refinementLevel === 'raw' || l.refinementLevel === 'shaped');
 
-  const aiHelpContext: ComponentContext = useMemo(() => ({
-    componentName: 'Software is Clay',
-    purpose: 'Visualizes the "Software is Clay" philosophy - code starts rough and gets refined through iterations. Each loop polishes the code further, like shaping clay into a finished piece.',
-    currentState: `${loops.length} total loops. Refinement distribution: ${refinementCounts.raw} raw, ${refinementCounts.shaped} shaped, ${refinementCounts.refined} refined, ${refinementCounts.polished} polished. Average ${avgIterations} iterations per loop.`,
-    availableActions: [
-      'View how many loops are at each refinement level',
-      'Click "Run Another Loop" on rough loops to refine them further',
-      'Track overall iteration progress across all loops',
-    ],
-    loomConcepts: [
-      'Raw - First iteration, rough and unformed (1-2 iterations)',
-      'Shaped - Taking form (3-5 iterations)',
-      'Refined - Polishing edges (6-10 iterations)',
-      'Polished - Mirror finish, production-ready (10+ iterations)',
-      'Software is Clay - Philosophy that code is continuously moldable',
-    ],
-  }), [loops.length, refinementCounts, avgIterations]);
-
   return (
-    <div className="hud-panel p-4 w-72 relative">
-      <AIHelpTooltip context={aiHelpContext} position="top-right" />
+    <div className="hud-panel p-4 w-72">
       <div className="flex items-center gap-2 mb-4">
         <Layers className="w-4 h-4 text-primary" />
         <span className="font-mono text-xs uppercase tracking-wider text-primary">
