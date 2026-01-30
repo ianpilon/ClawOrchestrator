@@ -5,6 +5,7 @@ import {
   LoopMode, LoopStatus
 } from '@/lib/loomData';
 import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import clawAgentImg from '@/assets/images/claw-agent.png';
 
 interface LoopVisualizationProps {
   loops: RalphLoop[];
@@ -268,7 +269,7 @@ export function LoopVisualization({
             const isSelected = selectedLoopId === circle.loop.id;
             const isIntervention = circle.loop.interventionRequired;
             const isSpinning = circle.loop.status === 'spinning';
-            const spinDuration = getSpinDuration(circle.loop.wheelSpeed);
+            const agentSize = 50 + (circle.loop.wheelSpeed / 100) * 20;
             
             return (
               <motion.div
@@ -277,15 +278,28 @@ export function LoopVisualization({
                 animate={{ 
                   opacity: 1, 
                   scale: isSelected ? 1.2 : 1,
+                  y: isSpinning ? [0, -8, 0] : 0,
                 }}
                 exit={{ opacity: 0, scale: 0 }}
-                whileHover={{ scale: 1.1 }}
-                className={`absolute pointer-events-auto cursor-pointer transition-shadow duration-200 rounded-full ${getStatusGlow(circle.loop.status)}`}
+                whileHover={{ scale: 1.15 }}
+                transition={isSpinning ? {
+                  y: {
+                    duration: 0.6 + (1 - circle.loop.wheelSpeed / 100) * 0.8,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }
+                } : undefined}
+                className={`absolute pointer-events-auto cursor-pointer ${getStatusGlow(circle.loop.status)}`}
                 style={{ 
-                  width: circle.radius * 2,
-                  height: circle.radius * 2,
-                  left: circle.x - circle.radius,
-                  top: circle.y - circle.radius,
+                  width: agentSize,
+                  height: agentSize,
+                  left: circle.x - agentSize / 2,
+                  top: circle.y - agentSize / 2,
+                  filter: isIntervention 
+                    ? 'drop-shadow(0 0 12px rgba(245, 158, 11, 0.8))' 
+                    : isSpinning 
+                      ? `drop-shadow(0 0 8px ${loopModeColors[circle.loop.mode]})` 
+                      : 'none',
                 }}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -295,70 +309,62 @@ export function LoopVisualization({
                 data-testid={`loop-${circle.loop.id}`}
               >
                 <div 
-                  className={`w-full h-full rounded-full flex items-center justify-center relative overflow-hidden
-                    ${isSelected ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}
-                    ${isIntervention ? 'animate-pulse' : ''}`}
-                  style={{ 
-                    background: `linear-gradient(135deg, ${loopModeColors[circle.loop.mode]}33, ${loopModeColors[circle.loop.mode]}11)`,
-                    border: `2px solid ${loopModeColors[circle.loop.mode]}`,
-                  }}
+                  className={`w-full h-full relative
+                    ${isSelected ? 'ring-2 ring-primary ring-offset-2 ring-offset-background rounded-full' : ''}`}
                 >
-                  {isSpinning && (
-                    <motion.div
-                      className="absolute inset-0 rounded-full"
-                      style={{
-                        background: `conic-gradient(from 0deg, transparent 0%, ${loopModeColors[circle.loop.mode]}66 25%, transparent 50%, ${loopModeColors[circle.loop.mode]}44 75%, transparent 100%)`,
-                      }}
-                      animate={{ rotate: circle.loop.mode === 'reverse' ? -360 : 360 }}
-                      transition={{ 
-                        duration: spinDuration, 
-                        repeat: Infinity, 
-                        ease: 'linear' 
-                      }}
-                    />
-                  )}
-
-                  {isSpinning && (
-                    <motion.div
-                      className="absolute inset-1 rounded-full border-t-2 border-r-2"
-                      style={{
-                        borderColor: `${loopModeColors[circle.loop.mode]}88`,
-                      }}
-                      animate={{ rotate: circle.loop.mode === 'reverse' ? -360 : 360 }}
-                      transition={{ 
-                        duration: spinDuration * 0.7, 
-                        repeat: Infinity, 
-                        ease: 'linear' 
-                      }}
-                    />
-                  )}
+                  <img 
+                    src={clawAgentImg} 
+                    alt="Claw Agent" 
+                    className="w-full h-full object-contain"
+                    style={{
+                      filter: circle.loop.status === 'paused' ? 'grayscale(0.7) opacity(0.6)' : 
+                              circle.loop.status === 'failed' ? 'hue-rotate(180deg) saturate(0.5)' :
+                              circle.loop.status === 'completed' ? 'hue-rotate(90deg) brightness(1.1)' : 'none',
+                    }}
+                  />
                   
-                  <span 
-                    className="text-lg font-bold z-10 drop-shadow-lg"
-                    style={{ color: loopModeColors[circle.loop.mode] }}
+                  <div 
+                    className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded text-[7px] font-mono uppercase tracking-wider whitespace-nowrap"
+                    style={{ 
+                      background: `${loopModeColors[circle.loop.mode]}cc`,
+                      color: 'white',
+                      textShadow: '0 1px 2px rgba(0,0,0,0.5)'
+                    }}
                   >
-                    {getModeIcon(circle.loop.mode)}
-                  </span>
+                    {circle.loop.mode === 'forward' ? '→' : circle.loop.mode === 'reverse' ? '←' : '⟳'}
+                  </div>
 
                   <div 
-                    className="absolute bottom-0 left-0 right-0 h-1 z-10"
+                    className="absolute -top-0.5 left-1/2 -translate-x-1/2 h-1 rounded-full"
                     style={{ 
+                      width: '80%',
                       background: refinementColors[circle.loop.refinementLevel],
-                      opacity: 0.8,
+                      boxShadow: `0 0 4px ${refinementColors[circle.loop.refinementLevel]}`,
                     }}
                   />
                 </div>
 
                 {circle.loop.wheelSpeed > 70 && (
-                  <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-500 flex items-center justify-center z-20">
-                    <span className="text-[6px] font-bold text-white">⚡</span>
-                  </div>
+                  <motion.div 
+                    className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center z-20"
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 0.5, repeat: Infinity }}
+                  >
+                    <span className="text-[8px] font-bold text-white">⚡</span>
+                  </motion.div>
                 )}
 
                 {isIntervention && (
-                  <div className="absolute -top-1 -left-1 w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center animate-bounce z-20">
-                    <span className="text-[8px] font-bold text-black">!</span>
-                  </div>
+                  <motion.div 
+                    className="absolute -top-2 -left-1 w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center z-20"
+                    animate={{ 
+                      y: [0, -4, 0],
+                      scale: [1, 1.1, 1]
+                    }}
+                    transition={{ duration: 0.4, repeat: Infinity }}
+                  >
+                    <span className="text-[10px] font-bold text-black">!</span>
+                  </motion.div>
                 )}
               </motion.div>
             );
