@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { AnimatePresence } from 'framer-motion';
 import { 
   Globe, Layers, AlertTriangle, Settings, Wifi, WifiOff, Zap,
-  PanelLeft, PanelBottom, Bell
+  PanelLeft, PanelBottom, Bell, Users
 } from 'lucide-react';
 
 const initialData = generateClawData();
@@ -32,6 +32,7 @@ export default function Home() {
   const [timelineCollapsed, setTimelineCollapsed] = useState(false);
   const [streamMinimized, setStreamMinimized] = useState(false);
   const [interventionsHidden, setInterventionsHidden] = useState(false);
+  const [swarmsCollapsed, setSwarmsCollapsed] = useState(false);
 
   const activeCount = useMemo(() => 
     data.agents.filter(a => a.status === 'active').length, 
@@ -227,6 +228,21 @@ export default function Home() {
                 </span>
               )}
             </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSwarmsCollapsed(!swarmsCollapsed)}
+              className={`h-8 w-8 p-0 relative ${swarmsCollapsed ? 'text-muted-foreground' : 'text-primary'}`}
+              title="Toggle Swarms"
+              data-testid="toggle-swarms-btn"
+            >
+              <Users className="w-4 h-4" />
+              {swarmsCollapsed && data.swarms.filter(s => s.status === 'active' || s.status === 'forming').length > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-purple-600 rounded-full text-[8px] flex items-center justify-center text-white font-bold">
+                  {data.swarms.filter(s => s.status === 'active' || s.status === 'forming').length}
+                </span>
+              )}
+            </Button>
           </div>
           
           <Button
@@ -275,10 +291,12 @@ export default function Home() {
         />
       </div>
 
-      <div className="absolute bottom-8 left-6 z-10 pointer-events-auto">
+      <div className="absolute bottom-8 left-6 z-10 pointer-events-none">
         <SwarmDashboard 
           swarms={data.swarms}
           agents={data.agents}
+          isCollapsed={swarmsCollapsed}
+          onToggleCollapse={() => setSwarmsCollapsed(!swarmsCollapsed)}
         />
       </div>
 
