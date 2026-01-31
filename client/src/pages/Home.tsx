@@ -284,12 +284,14 @@ export default function Home() {
         onToggleHidden={() => setInterventionsHidden(!interventionsHidden)}
       />
 
-      <div className="absolute bottom-8 right-6 z-10 pointer-events-auto space-y-4">
-        <FleetHealthPanel 
-          fleetHealth={data.fleetHealth}
-          machines={data.machines}
-        />
-      </div>
+      {(interventionsHidden || data.interventions.length === 0) && (
+        <div className="absolute bottom-8 right-6 z-10 pointer-events-auto space-y-4">
+          <FleetHealthPanel 
+            fleetHealth={data.fleetHealth}
+            machines={data.machines}
+          />
+        </div>
+      )}
 
       <div className="absolute bottom-44 left-6 z-10 pointer-events-none">
         <SwarmDashboard 
