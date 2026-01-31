@@ -205,14 +205,14 @@ export function AgentVisualization({
                   cy={dimensions.height / 2}
                   r={orbit}
                   fill="none"
-                  stroke={`${domainColors[domain]}22`}
-                  strokeWidth="1"
+                  stroke={`${domainColors[domain]}55`}
+                  strokeWidth="1.5"
                   strokeDasharray="6 10"
                 />
                 <text
                   x={dimensions.width / 2 + orbit + 15}
                   y={dimensions.height / 2 - 5}
-                  fill={`${domainColors[domain]}66`}
+                  fill={`${domainColors[domain]}aa`}
                   fontSize="11"
                   fontFamily="monospace"
                 >
@@ -295,8 +295,8 @@ export function AgentVisualization({
                 </div>
               </div>
             </div>
-            <div className="absolute -inset-3 rounded-full border border-dashed border-red-500/20 animate-spin" style={{ animationDuration: '15s' }} />
-            <div className="absolute -inset-6 rounded-full border border-dotted border-red-500/10 animate-spin" style={{ animationDuration: '25s', animationDirection: 'reverse' }} />
+            <div className="absolute -inset-3 rounded-full border border-dashed border-red-500/40 animate-spin" style={{ animationDuration: '15s' }} />
+            <div className="absolute -inset-6 rounded-full border border-dotted border-red-500/25 animate-spin" style={{ animationDuration: '25s', animationDirection: 'reverse' }} />
           </div>
         </div>
 

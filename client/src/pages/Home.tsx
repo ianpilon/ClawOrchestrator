@@ -258,12 +258,12 @@ export default function Home() {
       </div>
 
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] border border-white/3 rounded-full" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] border border-white/10 rounded-full" />
         
-        <div className="absolute top-12 left-12 w-4 h-4 border-t border-l border-white/10" />
-        <div className="absolute top-12 right-12 w-4 h-4 border-t border-r border-white/10" />
-        <div className="absolute bottom-12 left-12 w-4 h-4 border-b border-l border-white/10" />
-        <div className="absolute bottom-12 right-12 w-4 h-4 border-b border-r border-white/10" />
+        <div className="absolute top-12 left-12 w-4 h-4 border-t border-l border-white/20" />
+        <div className="absolute top-12 right-12 w-4 h-4 border-t border-r border-white/20" />
+        <div className="absolute bottom-12 left-12 w-4 h-4 border-b border-l border-white/20" />
+        <div className="absolute bottom-12 right-12 w-4 h-4 border-b border-r border-white/20" />
       </div>
 
       <ActionTimeline
