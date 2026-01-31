@@ -297,8 +297,15 @@ export default function Home() {
         <SwarmDashboard 
           swarms={data.swarms}
           agents={data.agents}
-          isCollapsed={swarmsCollapsed}
-          onToggleCollapse={() => setSwarmsCollapsed(!swarmsCollapsed)}
+          isCollapsed={swarmsCollapsed || !timelineCollapsed}
+          onToggleCollapse={() => {
+            if (!timelineCollapsed) {
+              setTimelineCollapsed(true);
+              setSwarmsCollapsed(false);
+            } else {
+              setSwarmsCollapsed(!swarmsCollapsed);
+            }
+          }}
         />
       </div>
 
