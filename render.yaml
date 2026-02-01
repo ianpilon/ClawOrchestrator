@@ -1,0 +1,24 @@
+databases:
+  - name: claw-orchestrator-db
+    databaseName: claw_orchestrator
+    user: claw
+    plan: free
+    region: oregon
+
+services:
+  - type: web
+    name: claw-orchestrator
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: claw-orchestrator-db
+          property: connectionString
+      - key: SESSION_SECRET
+        generateValue: true
